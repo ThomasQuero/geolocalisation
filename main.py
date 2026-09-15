@@ -4,10 +4,6 @@ import folium
 
 def main():
 
-    # -------------------------
-    # 1. Lecture des données
-    # -------------------------
-
     pop = pd.read_csv(
         "insee-pop-communes.csv",
         sep=";",
@@ -21,20 +17,12 @@ def main():
     )
 
 
-    # -------------------------
-    # 2. Garder les données utiles
-    # -------------------------
-
     pop = pop[["DEPCOM", "PTOT"]]
 
     correspondance = correspondance[
         ["Code INSEE", "Superficie"]
     ]
 
-
-    # -------------------------
-    # 3. Fusion des deux datasets
-    # -------------------------
 
     data = pop.merge(
         correspondance,
@@ -43,10 +31,6 @@ def main():
         how="inner"
     )
 
-
-    # -------------------------
-    # 4. Garder uniquement l'Île-de-France
-    # -------------------------
 
     departements_idf = (
         "75", "77", "78", "91",
@@ -57,21 +41,11 @@ def main():
         data["DEPCOM"].str.startswith(departements_idf)
     ]
 
-
-    # -------------------------
-    # 5. Calcul de la densité
-    # -------------------------
-
     data["densite"] = (
         data["PTOT"] / data["Superficie"]
     )
 
     print(data[["DEPCOM", "PTOT", "Superficie", "densite"]].head())
-
-
-    # -------------------------
-    # 6. Création de la carte
-    # -------------------------
 
     coords = (48.7453229, 2.5073644)
 
@@ -82,19 +56,12 @@ def main():
     )
 
 
-    # -------------------------
-    # 7. Choroplèthe
-    # -------------------------
-
     folium.Choropleth(
         geo_data="idf.geojson",
         data=data,
 
-        # DEPCOM = clé
-        # densite = valeur à représenter
         columns=["DEPCOM", "densite"],
 
-        # Correspondance avec idf.geojson
         key_on="feature.properties.code_commune",
 
         fill_color="YlOrRd",
@@ -104,10 +71,8 @@ def main():
         legend_name="Densité de population"
     ).add_to(carte)
 
-
-    # -------------------------
-    # 8. Sauvegarde
-    # -------------------------
+    print(data)
+    print(data.dtypes)
 
     carte.save("map.html")
 
